@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>Prius DASH</title>
+    <link rel="stylesheet" href="bootstrap.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <nav class="navbar navbar-dark navbar-expand-md bg-dark text-center py-3">
+        <div class="container-fluid">
+            <div class="font-monospace d-flex " style="align-items: baseline;">
+                <span class="align-text-bottom" style="color: var(--bs-gray-400);font-size: 30px;">DASH</span>
+                <span style="width: 5px;"></span>
+                <span class="align-text-bottom" style="color: var(--bs-gray-400);font-size: 10px; ">v0.1</span>
+            </div>
+            <button class="btn btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#modal"
+                id="btn-config">CONFIG</button>
+        </div>
+    </nav>
+    <div class="row text-center" style="margin-right: 0;margin-left: 0;margin-top: 10px;">
+        <div class="col">
+            <div class="card"
+                style="background: var(--bs-gray-200);margin: 5px;box-shadow: 1px 1px 5px var(--bs-gray-800);">
+                <div class="card-body">
+                    <h4 class="text-center card-title" id="lbl-header"> Battery </h4>
+                    <div style="padding: 20px;padding-right: 0;padding-left: 0;padding-bottom: 10px;">
+                        <div class="progress" style="background: var(--bs-gray-400);height: 30px;">
+                            <div class="progress-bar bg-secondary" id="percentbar" aria-valuenow="50" aria-valuemin="0"
+                                aria-valuemax="100" style="width: 0%;">
+                            </div>
+                        </div>
+                        <p id="lbl-state" class="text-center">disconnected</p>
+                    </div>
+                    <div class="font-monospace d-flex justify-content-between">
+                        <div
+                            class="text-start d-sm-flex flex-column flex-fill align-items-center justify-content-sm-center form-check form-switch">
+
+                            <div class="btncontainer">
+                                <input type="checkbox" id="checkbox-charge" class="form-check-input btnchild"
+                                    style="margin-left: 0px; margin-top: 0px;height: 40px;width: 90px;">
+                                <button id="btn-charge" class="btn btnchild"></button>
+                            </div>
+                            <label class="form-label form-check-label" for="charge">CHARGE</label>
+                        </div>
+                        <div style="width: 20px;"></div>
+                        <div
+                            class="text-start d-sm-flex flex-column flex-fill align-items-center justify-content-sm-center form-check form-switch">
+
+                            <div class="btncontainer">
+                                <input type="checkbox" id="checkbox-discharge" class="form-check-input btnchild"
+                                    style="margin-left: 0px; margin-top: 0px;height: 40px;width: 90px;">
+                                <button id="btn-discharge" class="btn btnchild"></button>
+                            </div>
+                            <label class="form-label form-check-label" for="discharge">DISCHARGE</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="container" style="margin-top: 0;">
+        <ul class="list-unstyled" style="font-size: small">
+            <li class="text-center">DEBUG PANEL</li>
+            <li class="text-center" id="txt-vbat">vBat: </li>
+            <li class="text-center" id="txt-vlow">vLow: </li>
+            <li class="text-center" id="txt-vlower">vLower: </li>
+            <li class="text-center" id="txt-vmin">vMin: </li>
+            <li class="text-center" id="txt-vtop">vTop: </li>
+            <li class="text-center" id="txt-voffset">vOffset: </li>
+            <li class="text-center" id="txt-vtopwait">vTopWait: </li>
+            <li class="text-center" id="txt-vmax">vMax: </li>
+            <li class="text-center" id="txt-vmaxhit">vMaxHit: </li>
+            <li class="text-center" id="txt-vmaxwait">vMaxWait: </li>
+            <li class="text-center" id="txt-timeout">timeout: </li>
+            <li class="text-center" id="txt-timer">timer: </li>
+        </ul>
+    </div>
+    <div class="container" style="margin-top: 0;">
+        <!-- <p class="text-center" style="margin: 5px;">LOG</p> -->
+        <ul class="list-unstyled" style="font-size: small" id="log-list">
+        </ul>
+    </div>
+
+    <div class="modal fade" role="dialog" tabindex="-1" id="modal">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Config</h4>
+                    <button type="button" class="btn-close" id="btn-close" aria-label="Close"></button>
+                </div>
+                <div class="modal-body font-monospace text-start">
+                    <form style="padding-bottom: 10px;">
+                        <p style="margin: 0px;">Target voltage</p>
+                        <input class="form-control" id="input-vmax" type="number" value="0" placeholder="0"
+                            inputmode="numeric" style="border-radius: 5px;border-color: var(--bs-blue);">
+                    </form>
+                    <form style="padding-bottom: 10px;">
+                        <p style="margin: 0px;">Wait time on target (in seconds)</p>
+                        <input class="form-control" id="input-vmaxwait" type="number" value="0" placeholder="0"
+                            inputmode="numeric" style="border-radius: 5px;border-color: var(--bs-blue);">
+                    </form>
+                    <form style="padding-bottom: 10px;">
+                        <p style="margin: 0px;">Voltage offset</p>
+                        <input class="form-control" id="input-voffset" type="number" value="0" placeholder="0"
+                            inputmode="numeric" style="border-radius: 5px;border-color: var(--bs-blue);">
+                    </form>
+                    <form style="padding-bottom: 10px;">
+                        <p style="margin: 0px;">Timeout (in seconds)</p>
+                        <input class="form-control" id="input-vtopwait" type="number" value="0" placeholder="0"
+                            inputmode="numeric" style="border-radius: 5px;border-color: var(--bs-blue);">
+                    </form>
+
+
+                    <form style="padding-bottom: 10px;">
+                        <p style="margin: 0px;">2 light zone (ie 150v)</p>
+                        <input class="form-control" id="input-vlow" type="number" value="0" placeholder="0"
+                            inputmode="numeric" style="border-radius: 5px;border-color: var(--bs-blue);">
+                    </form>
+                    <form style="padding-bottom: 10px;">
+                        <p style="margin: 0px;">1 light zone (ie 100v)</p>
+                        <input class="form-control" id="input-vlower" type="number" value="0" placeholder="0"
+                            inputmode="numeric" style="border-radius: 5px;border-color: var(--bs-blue);">
+                    </form>
+                    <form style="padding-bottom: 10px;">
+                        <p style="margin: 0px;">Min voltage (ie 50v)</p>
+                        <input class="form-control" id="input-vmin" type="number" value="0" placeholder="0"
+                            inputmode="numeric" style="border-radius: 5px;border-color: var(--bs-blue);">
+                    </form>
+
+                    <form style="padding-bottom: 10px;">
+                        <p style="margin: 0px;">Voltage divider</p>
+                        <input class="form-control" type="number" value="0" placeholder="0" inputmode="numeric"
+                            style="border-radius: 5px;border-color: var(--bs-blue);">
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-light" type="button" id="btn-cancel">Cancel</button>
+                    <button class="btn btn-primary" type="button" id="btn-save">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+
+        let gateway = `ws://192.168.0.200/ws`;
+        let websocket;
+
+        let states = [
+            "idle",
+            "charging",
+            "charged",
+            "discharging",
+            "discharged",
+            "timeout",
+            "error"
+        ];
+        let state = 0;
+
+        window.addEventListener('load', onLoad);
+
+        function onLoad(event) {
+            initWebSocket();
+            initUI();
+        }
+        function initWebSocket() {
+            console.log('Trying to open a WebSocket connection...');
+            websocket = new WebSocket(gateway);
+            websocket.onopen = onOpen;
+            websocket.onclose = onClose;
+            websocket.onmessage = onMessage;
+        }
+        function onOpen(event) {
+            console.log('Connection opened');
+            readTextFile("log.txt");
+        }
+        function readTextFile(file) {
+            let rawFile = new XMLHttpRequest();
+            rawFile.open("GET", file, true);
+            rawFile.onreadystatechange = function () {
+                if (rawFile.readyState === 4) {
+                    if (rawFile.status === 200 || rawFile.status == 0) {
+                        let allText = rawFile.responseText;
+                        logRetrieved(allText);
+                    }
+                }
+            };
+            rawFile.send(null);
+        }
+
+        function logRetrieved(contents) {
+            let lines = contents.split('\n');
+            for (let i = lines.length - 1; i > 0; i -= 1) {
+                let data = lines[i];
+                addLog(data, false);
+                if (data.includes("SYSTEM STARTING"))
+                    return;
+            }
+        }
+
+        function addLog(data, top = true) {
+            let ul = document.getElementById("log-list");
+            let li = document.createElement("li");
+            li.appendChild(document.createTextNode(data));
+            if (top)
+                ul.prepend(li);
+            else
+                ul.append(li);
+        }
+
+        function onClose(event) {
+            console.log('Connection closed');
+            setTimeout(initWebSocket, 1000);
+        }
+
+        function onMessage(event) {
+            let jsn = JSON.parse(event.data);
+            // console.log(jsn);
+
+            if (jsn.type == "status") {
+                state = jsn.data.state;
+
+                // idle
+                if (state == 0) {
+                    document.getElementById('checkbox-charge').checked = false;
+                    document.getElementById('checkbox-charge').disabled = false;
+                    document.getElementById('btn-charge').disabled = false;
+
+                    document.getElementById('checkbox-discharge').checked = false;
+                    document.getElementById('checkbox-discharge').disabled = false;
+                    document.getElementById('btn-discharge').disabled = false;
+
+                    document.getElementById('lbl-header').innerHTML = "Battery : " + jsn.data.vBat;
+                    document.getElementById('lbl-state').innerHTML = states[jsn.data.state];
+
+                    document.getElementById('percentbar').className = "progress-bar bg-secondary";
+                }
+                // charging
+                else if (state == 1) {
+                    document.getElementById('checkbox-charge').checked = true;
+                    document.getElementById('checkbox-charge').disabled = false;
+                    document.getElementById('btn-charge').disabled = false;
+
+                    document.getElementById('checkbox-discharge').checked = false;
+                    document.getElementById('checkbox-discharge').disabled = true;
+                    document.getElementById('btn-discharge').disabled = true;
+
+                    document.getElementById('lbl-header').innerHTML = jsn.data.vBat + "/" + jsn.data.vMax;
+                    document.getElementById('lbl-state').innerHTML = states[jsn.data.state];
+
+                    document.getElementById('percentbar').className = "progress-bar bg-primary progress-bar-animated progress-bar-striped";
+                }
+                // charged
+                else if (state == 2) {
+                    document.getElementById('checkbox-charge').checked = false;
+                    document.getElementById('checkbox-charge').disabled = false;
+                    document.getElementById('btn-charge').disabled = false;
+
+                    document.getElementById('checkbox-discharge').checked = false;
+                    document.getElementById('checkbox-discharge').disabled = false;
+                    document.getElementById('btn-discharge').disabled = false;
+
+                    document.getElementById('lbl-header').innerHTML = "Battery : " + jsn.data.vBat;
+                    document.getElementById('lbl-state').innerHTML = states[jsn.data.state];
+
+                    document.getElementById('percentbar').className = "progress-bar bg-success progress-bar-striped";
+                }
+                // discharging
+                else if (state == 3) {
+                    document.getElementById('checkbox-charge').checked = false;
+                    document.getElementById('checkbox-charge').disabled = true;
+                    document.getElementById('btn-charge').disabled = true;
+
+                    document.getElementById('checkbox-discharge').checked = true;
+                    document.getElementById('checkbox-discharge').disabled = false;
+                    document.getElementById('btn-discharge').disabled = false;
+
+                    document.getElementById('lbl-header').innerHTML = jsn.data.vBat + ">" + jsn.data.vMin;
+                    document.getElementById('lbl-state').innerHTML = states[jsn.data.state];
+
+                    document.getElementById('percentbar').className = "progress-bar bg-warning progress-bar-animated progress-bar-striped";
+                }
+                // discharged
+                else if (state == 4) {
+                    document.getElementById('checkbox-charge').checked = false;
+                    document.getElementById('checkbox-charge').disabled = false;
+                    document.getElementById('btn-charge').disabled = false;
+
+                    document.getElementById('checkbox-discharge').checked = false;
+                    document.getElementById('checkbox-discharge').disabled = false;
+                    document.getElementById('btn-discharge').disabled = false;
+
+                    document.getElementById('lbl-header').innerHTML = "Battery : " + jsn.data.vBat;
+                    document.getElementById('lbl-state').innerHTML = states[jsn.data.state];
+
+                    document.getElementById('percentbar').className = "progress-bar bg-info progress-bar-striped";
+                }
+                // timeout
+                else if (state == 5) {
+                    document.getElementById('checkbox-charge').checked = false;
+                    document.getElementById('checkbox-charge').disabled = false;
+                    document.getElementById('btn-charge').disabled = false;
+
+                    document.getElementById('checkbox-discharge').checked = false;
+                    document.getElementById('checkbox-discharge').disabled = false;
+                    document.getElementById('btn-discharge').disabled = false;
+
+                    document.getElementById('lbl-header').innerHTML = "Battery : " + jsn.data.vBat;
+                    document.getElementById('lbl-state').innerHTML = states[jsn.data.state];
+
+                    document.getElementById('percentbar').className = "progress-bar bg-warning";
+                }
+                // error
+                else if (state == 6) {
+                    document.getElementById('checkbox-charge').checked = false;
+                    document.getElementById('checkbox-charge').disabled = false;
+                    document.getElementById('btn-charge').disabled = false;
+
+                    document.getElementById('checkbox-discharge').checked = false;
+                    document.getElementById('checkbox-discharge').disabled = false;
+                    document.getElementById('btn-discharge').disabled = false;
+
+                    document.getElementById('lbl-header').innerHTML = "Battery : " + jsn.data.vBat;
+                    document.getElementById('lbl-state').innerHTML = states[jsn.data.state];
+
+                    document.getElementById('percentbar').className = "progress-bar bg-danger";
+                }
+
+
+                // debug 
+                document.getElementById('txt-vbat').innerHTML = "vbat: " + jsn.data.vBat;
+                document.getElementById('txt-vlow').innerHTML = "vlow: " + jsn.data.vLow;
+                document.getElementById('txt-vlower').innerHTML = "vlower: " + jsn.data.vLower;
+                document.getElementById('txt-vmin').innerHTML = "vmin: " + jsn.data.vMin;
+                document.getElementById('txt-vtop').innerHTML = "vtop: " + jsn.data.vTop;
+                document.getElementById('txt-voffset').innerHTML = "voffset: " + jsn.data.vOffset;
+                document.getElementById('txt-vtopwait').innerHTML = "vtopwait: " + jsn.data.vTopWait;
+                document.getElementById('txt-vmax').innerHTML = "vmax: " + jsn.data.vMax;
+                document.getElementById('txt-vmaxhit').innerHTML = "vmaxhit: " + jsn.data.vMaxHit;
+                document.getElementById('txt-vmaxwait').innerHTML = "vmaxwait: " + jsn.data.vMaxWait;
+
+                document.getElementById('txt-timeout').innerHTML = "timeout: " + jsn.data.timeout;
+                document.getElementById('txt-timer').innerHTML = "timer: " + jsn.data.timer;
+
+                // debug
+                jsn.data.vMin = 0;
+
+                let percent = parseInt((jsn.data.vBat - jsn.data.vMin) / (jsn.data.vMax - jsn.data.vMin) * 100);
+                document.getElementById('percentbar').innerHTML = percent + "%";
+                document.getElementById('percentbar').style.width = percent + "%";
+
+            }
+            else if (jsn.type == "log") {
+                addLog(jsn.data);
+            }
+            else if (jsn.type == "config") {
+                document.getElementById('input-vmax').value = jsn.data.vMax;
+                document.getElementById('input-vmax').placeholder = jsn.data.vMax;
+
+                document.getElementById('input-vmaxwait').value = jsn.data.vMaxWait;
+                document.getElementById('input-vmaxwait').placeholder = jsn.data.vMaxWait;
+
+                document.getElementById('input-voffset').value = jsn.data.vOffset;
+                document.getElementById('input-voffset').placeholder = jsn.data.vOffset;
+
+                document.getElementById('input-vtopwait').value = jsn.data.vTopWait;
+                document.getElementById('input-vtopwait').placeholder = jsn.data.vTopWait;
+
+                document.getElementById('input-vlow').value = jsn.data.vLow;
+                document.getElementById('input-vlow').placeholder = jsn.data.vLow;
+
+                document.getElementById('input-vlower').value = jsn.data.vLower;
+                document.getElementById('input-vlower').placeholder = jsn.data.vLower;
+
+                document.getElementById('input-vmin').value = jsn.data.vMin;
+                document.getElementById('input-vmin').placeholder = jsn.data.vMin;
+
+            }
+        }
+
+        function initUI() {
+            document.getElementById('btn-charge').addEventListener('click', toggleCharge);
+            document.getElementById('btn-discharge').addEventListener('click', toggleDischarge);
+            document.getElementById('btn-config').addEventListener('click', fetchConfig);
+            document.getElementById('btn-save').addEventListener('click', sendConfig);
+            document.getElementById('btn-cancel').addEventListener('click', closeConfig);
+            document.getElementById('btn-close').addEventListener('click', closeConfig);
+        }
+
+        function toggleCharge() {
+            if (state == 1)
+                sendJSON('charged');
+            else {
+                //  anti double click
+                document.getElementById('checkbox-discharge').disabled = true;
+                document.getElementById('btn-discharge').disabled = true;
+                sendJSON('charge');
+            }
+        }
+
+        function toggleDischarge() {
+            if (state == 3)
+                sendJSON('discharged');
+            else {
+                //  anti double click
+                document.getElementById('checkbox-charge').disabled = true;
+                document.getElementById('btn-charge').disabled = true;
+                sendJSON('discharge');
+            }
+        }
+
+        function fetchConfig() {
+            sendJSON('fetch');
+            document.getElementById('modal').className = "modal fade show";
+            document.getElementById('modal').style.display = "block";
+        }
+
+        function sendConfig() {
+            let data = {};
+            if (document.getElementById('input-vmax').value != document.getElementById('input-vmax').placeholder
+                && document.getElementById('input-vmax').value > 0)
+                data["vMax"] = document.getElementById('input-vmax').value;
+            if (document.getElementById('input-vmaxwait').value != document.getElementById('input-vmaxwait').placeholder
+                && document.getElementById('input-vmaxwait').value > 0)
+                data["vMaxWait"] = document.getElementById('input-vmaxwait').value;
+            if (document.getElementById('input-voffset').value != document.getElementById('input-voffset').placeholder
+                && document.getElementById('input-voffset').value > 0)
+                data["vOffset"] = document.getElementById('input-voffset').value;
+            if (document.getElementById('input-vtopwait').value != document.getElementById('input-vtopwait').placeholder
+                && document.getElementById('input-vtopwait').value > 0)
+                data["vTopWait"] = document.getElementById('input-vtopwait').value;
+            if (document.getElementById('input-vlow').value != document.getElementById('input-vlow').placeholder
+                && document.getElementById('input-vlow').value > 0)
+                data["vLow"] = document.getElementById('input-vlow').value;
+            if (document.getElementById('input-vlower').value != document.getElementById('input-vlower').placeholder
+                && document.getElementById('input-vlower').value > 0)
+                data["vLower"] = document.getElementById('input-vlower').value;
+            if (document.getElementById('input-vmin').value != document.getElementById('input-vmin').placeholder
+                && document.getElementById('input-vmin').value > 0)
+                data["vMin"] = document.getElementById('input-vmin').value;
+            sendJSON('config', data);
+            closeConfig();
+        }
+
+        function closeConfig() {
+            document.getElementById('modal').className = "modal fade";
+            document.getElementById('modal').style.display = "none";
+        }
+
+        function sendJSON(type, data = {}) {
+            let json = {};
+            json["type"] = type;
+            json["data"] = data;
+            console.log(json);
+            websocket.send(JSON.stringify(json));
+        }
+
+    </script>
+</body>
+
+</html>
